@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { api } from '@/services/api';
 
 interface CourseDetail {
@@ -30,7 +30,10 @@ interface ClassItem {
 
 export default function CourseDetailClient() {
   const params = useParams();
-  const slug = params?.slug as string;
+  const searchParams = useSearchParams();
+  
+  // Suporte tanto para /cursos/[slug] quanto para /cursos/detalhes?slug=[slug]
+  const slug = (params?.slug as string) || (searchParams?.get('slug') as string);
   const [course, setCourse] = useState<CourseDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -76,7 +79,7 @@ export default function CourseDetailClient() {
       <nav className="fixed top-0 inset-x-0 z-50 glass border-b border-slate-700/40">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <a href="/" className="flex items-center gap-3">
-            <img src="/logos/logo.png" alt="Cursos GT Logo" className="w-13 h-13 object-contain drop-shadow-[0_0_15px_rgba(234,179,8,0.45)] transition-all hover:scale-105" />
+            <img src="/logos/logo.png" alt="Cursos GT Logo" className="w-12 h-12 object-contain drop-shadow-[0_0_15px_rgba(234,179,8,0.45)] transition-all hover:scale-105" style={{ width: '48px', height: '48px', minWidth: '48px' }} />
             <span className="text-xl font-extrabold text-white tracking-tight">Cursos GT</span>
           </a>
           <div className="flex items-center gap-3">
@@ -91,13 +94,21 @@ export default function CourseDetailClient() {
       <section className="pt-24 pb-0 relative overflow-hidden">
         <div className="h-72 relative"
           style={{ background: 'linear-gradient(135deg, hsl(40, 70%, 20%), hsl(50, 60%, 10%))' }}>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <svg className="w-32 h-32 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={0.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-          </div>
+          {course.thumbnail ? (
+            <img 
+              src={course.thumbnail} 
+              alt={course.title} 
+              className="w-full h-full object-cover opacity-45 absolute inset-0" 
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <svg className="w-32 h-32 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={0.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+          )}
           {/* Breadcrumb */}
-          <div className="absolute bottom-0 left-0 right-0">
+          <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent">
             <div className="max-w-7xl mx-auto px-6 py-4">
               <nav className="flex items-center gap-2 text-sm text-slate-400">
                 <a href="/" className="hover:text-white transition-colors">Início</a>

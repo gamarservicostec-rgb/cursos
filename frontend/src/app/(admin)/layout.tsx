@@ -85,7 +85,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <div className="glass-panel flex-1 rounded-[2rem] flex flex-col overflow-hidden relative shadow-[0_0_40px_rgba(234,179,8,0.05)] border border-white/5">
           <div className="flex items-center gap-4 px-6 py-8">
-            <img src="/logos/logo.png" alt="Cursos GT Logo" className="w-14 h-14 object-contain drop-shadow-[0_0_15px_rgba(234,179,8,0.5)] transition-all hover:scale-105" />
+            <img src="/logos/logo.png" alt="Cursos GT Logo" className="w-14 h-14 object-contain drop-shadow-[0_0_15px_rgba(234,179,8,0.5)] transition-all hover:scale-105" style={{ width: '56px', height: '56px', minWidth: '56px' }} />
             <div className="flex flex-col">
               <span className="font-extrabold text-xl tracking-tight text-white leading-none">Cursos GT</span>
               <span className="text-[10px] text-yellow-500/80 uppercase tracking-widest font-extrabold mt-1">Admin</span>

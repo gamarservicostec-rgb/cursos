@@ -68,7 +68,7 @@ export default function StudentPainelPage() {
       <nav className="fixed top-0 inset-x-0 z-50 glass border-b border-slate-700/40">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <a href="/" className="flex items-center gap-3">
-            <img src="/logos/logo.png" alt="Cursos GT Logo" className="w-13 h-13 object-contain drop-shadow-[0_0_15px_rgba(234,179,8,0.45)] transition-all hover:scale-105" />
+            <img src="/logos/logo.png" alt="Cursos GT Logo" className="w-12 h-12 object-contain drop-shadow-[0_0_15px_rgba(234,179,8,0.45)] transition-all hover:scale-105" style={{ width: '48px', height: '48px', minWidth: '48px' }} />
             <span className="text-xl font-extrabold text-white tracking-tight">Cursos GT</span>
           </a>
           <div className="flex items-center gap-4">

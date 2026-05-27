@@ -88,7 +88,7 @@ export default function RegisterPage() {
         {/* Logo */}
         <div className="text-center mb-8 animate-fade-in-up flex flex-col items-center justify-center">
           <a href="/" className="inline-block mb-4">
-            <img src="/logos/logo.png" alt="Cursos GT Logo" className="h-28 w-auto object-contain mx-auto drop-shadow-[0_0_20px_rgba(234,179,8,0.55)] transition-all hover:scale-105 duration-300" />
+            <img src="/logos/logo.png" alt="Cursos GT Logo" className="h-28 w-auto object-contain mx-auto drop-shadow-[0_0_20px_rgba(234,179,8,0.55)] transition-all hover:scale-105 duration-300" style={{ height: '112px', width: 'auto', maxHeight: '112px' }} />
           </a>
           <p className="text-slate-300 text-lg font-medium tracking-wide">Crie sua conta e comece a aprender</p>
         </div>

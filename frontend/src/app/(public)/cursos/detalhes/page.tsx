@@ -1,16 +1,11 @@
+'use client';
+
 import { Suspense } from 'react';
-import CourseDetailClient from "./CourseDetailClient";
+import CourseDetailClient from '../[slug]/CourseDetailClient';
 
-// generateStaticParams é necessário para permitir que rotas dinâmicas
-// funcionem em compilações de exportação estática (Next.js Static HTML Export)
-export async function generateStaticParams() {
-  return [
-    { slug: "design-grafico-profissional" },
-    { slug: "informatica-avancada-e-office" }
-  ];
-}
-
-export default function CourseDetailPage() {
+// Como o Next.js no modo export estático requer que o useSearchParams esteja envolvido em Suspense,
+// nós o envolvemos aqui para garantir que funcione perfeitamente.
+export default function CursoDetalhesQueryPage() {
   return (
     <Suspense fallback={
       <main className="min-h-screen flex items-center justify-center">
@@ -24,4 +19,3 @@ export default function CourseDetailPage() {
     </Suspense>
   );
 }
-
