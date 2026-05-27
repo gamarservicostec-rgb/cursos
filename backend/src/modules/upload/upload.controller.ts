@@ -35,26 +35,10 @@ export class UploadController {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     const filename = `${uniqueSuffix}${extname(file.originalname)}`;
     
-    // Tenta salvar no disco local
-    try {
-      const uploadDir = join(process.cwd(), "uploads");
-      if (!existsSync(uploadDir)) {
-        mkdirSync(uploadDir, { recursive: true });
-      }
-      const filePath = join(uploadDir, filename);
-      writeFileSync(filePath, file.buffer);
-      
-      // Retorna a URL relativa
-      return {
-        url: `/backend/uploads/${filename}`,
-      };
-    } catch (error) {
-      console.warn("Failed to write to disk, falling back to base64 encoding", error);
-      // Fallback: retorna como Base64 data URL
-      const base64Data = file.buffer.toString("base64");
-      return {
-        url: `data:${file.mimetype};base64,${base64Data}`,
-      };
-    }
+    // Retorna a imagem codificada em Base64 para armazenamento persistente direto no banco de dados (ideal para Vercel Serverless)
+    const base64Data = file.buffer.toString("base64");
+    return {
+      url: `data:${file.mimetype};base64,${base64Data}`,
+    };
   }
 }

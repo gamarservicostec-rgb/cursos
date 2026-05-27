@@ -60,7 +60,7 @@ model User {
   cpf       String?    @unique
   role      UserRole   @default(STUDENT)
   status    UserStatus @default(ACTIVE)
-  avatarUrl String?
+  avatarUrl String?    @db.LongText
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
@@ -78,8 +78,8 @@ model Course {
   summary     String?      @db.Text
   price       Float        @default(0)
   duration    Int? // duração em horas
-  thumbnail   String?
-  bannerUrl   String?
+  thumbnail   String?      @db.LongText
+  bannerUrl   String?      @db.LongText
   status      CourseStatus @default(DRAFT)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
