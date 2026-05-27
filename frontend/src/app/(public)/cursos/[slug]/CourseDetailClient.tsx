@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import { api } from '@/services/api';
 
 interface CourseDetail {
   id: number;
@@ -36,13 +37,9 @@ export default function CourseDetailClient() {
 
   useEffect(() => {
     if (!slug) return;
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'}/courses/${slug}`)
-      .then((r) => {
-        if (!r.ok) throw new Error('Curso não encontrado');
-        return r.json();
-      })
+    api.getCourse(slug)
       .then((data) => setCourse(data))
-      .catch((err) => setError(err.message))
+      .catch((err) => setError(err.message || 'Curso não encontrado'))
       .finally(() => setLoading(false));
   }, [slug]);
 

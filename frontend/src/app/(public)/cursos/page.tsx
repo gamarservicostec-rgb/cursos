@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { api } from '@/services/api';
 
 interface PublicCourse {
   id: number;
@@ -21,8 +22,7 @@ export default function PublicCoursesPage() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'}/courses?status=PUBLISHED`)
-      .then((r) => r.json())
+    api.getPublishedCourses()
       .then((data) => setCourses(data))
       .catch(() => {})
       .finally(() => setLoading(false));

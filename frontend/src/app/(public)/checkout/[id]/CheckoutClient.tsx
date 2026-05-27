@@ -53,13 +53,9 @@ export default function CheckoutClient() {
   useEffect(() => {
     if (!classId) return;
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'}/classes/${classId}`)
-      .then((r) => {
-        if (!r.ok) throw new Error('Turma não encontrada');
-        return r.json();
-      })
+    api.getClass(classId)
       .then((data) => setClassItem(data))
-      .catch((err) => setError(err.message))
+      .catch((err) => setError(err.message || 'Turma não encontrada'))
       .finally(() => setLoading(false));
   }, [classId]);
 

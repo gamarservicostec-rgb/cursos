@@ -1,4 +1,6 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = 
+  process.env.NEXT_PUBLIC_API_URL || 
+  (typeof window !== 'undefined' ? '/backend/api' : 'http://localhost:3000/api');
 
 interface FetchOptions extends RequestInit {
   skipAuth?: boolean;
