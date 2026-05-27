@@ -13,10 +13,14 @@ class ApiService {
   async request<T = any>(endpoint: string, options: FetchOptions = {}): Promise<T> {
     const { skipAuth = false, headers: customHeaders, ...rest } = options;
 
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...customHeaders as Record<string, string>,
-    };
+    const headers: Record<string, string> = {};
+    if (!(rest.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    if (customHeaders) {
+      Object.assign(headers, customHeaders);
+    }
 
     if (!skipAuth) {
       const token = this.getToken();
@@ -76,6 +80,10 @@ class ApiService {
 
   async getCourse(slug: string) {
     return this.request(`/courses/${slug}`, { skipAuth: true });
+  }
+
+  async getCourseById(id: number) {
+    return this.request(`/courses/id/${id}`);
   }
 
   async createCourse(data: any) {
@@ -206,6 +214,15 @@ class ApiService {
 
   async getMyAttendances() {
     return this.request('/attendance/my');
+  }
+
+  async uploadFile(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.request('/upload', {
+      method: 'POST',
+      body: formData,
+    });
   }
 }
 

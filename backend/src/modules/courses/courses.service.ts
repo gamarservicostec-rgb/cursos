@@ -31,11 +31,78 @@ export class CoursesService {
       throw new ConflictException("Já existe um curso com este título");
     }
 
-    return this.prisma.course.create({
-      data: {
-        ...createCourseDto,
-        slug,
-      },
+    const { modules, ...courseData } = createCourseDto;
+
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Criar o curso
+      const course = await tx.course.create({
+        data: {
+          ...courseData,
+          slug,
+        },
+      });
+
+      // 2. Criar os módulos, matérias e aulas recursivamente se fornecidos
+      if (modules && Array.isArray(modules)) {
+        for (let mIdx = 0; mIdx < modules.length; mIdx++) {
+          const mod = modules[mIdx];
+          const dbModule = await tx.module.create({
+            data: {
+              courseId: course.id,
+              title: mod.title,
+              description: mod.description || null,
+              order: mod.order ?? mIdx,
+            },
+          });
+
+          if (mod.subjects && Array.isArray(mod.subjects)) {
+            for (let sIdx = 0; sIdx < mod.subjects.length; sIdx++) {
+              const sub = mod.subjects[sIdx];
+              const dbSubject = await tx.subject.create({
+                data: {
+                  moduleId: dbModule.id,
+                  title: sub.title,
+                  description: sub.description || null,
+                  order: sub.order ?? sIdx,
+                },
+              });
+
+              if (sub.lessons && Array.isArray(sub.lessons)) {
+                for (let lIdx = 0; lIdx < sub.lessons.length; lIdx++) {
+                  const les = sub.lessons[lIdx];
+                  await tx.lesson.create({
+                    data: {
+                      subjectId: dbSubject.id,
+                      title: les.title,
+                      description: les.description || null,
+                      type: les.type || "VIDEO",
+                      videoUrl: les.videoUrl || null,
+                      content: les.content || null,
+                      duration: les.duration ? Number(les.duration) : null,
+                      order: les.order ?? lIdx,
+                    },
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return tx.course.findUnique({
+        where: { id: course.id },
+        include: {
+          modules: {
+            include: {
+              subjects: {
+                include: {
+                  lessons: true,
+                },
+              },
+            },
+          },
+        },
+      });
     });
   }
 
@@ -60,6 +127,19 @@ export class CoursesService {
           where: { status: "SCHEDULED" },
           orderBy: { startDate: "asc" },
         },
+        modules: {
+          orderBy: { order: "asc" },
+          include: {
+            subjects: {
+              orderBy: { order: "asc" },
+              include: {
+                lessons: {
+                  orderBy: { order: "asc" },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -75,6 +155,19 @@ export class CoursesService {
       where: { id },
       include: {
         classes: true,
+        modules: {
+          orderBy: { order: "asc" },
+          include: {
+            subjects: {
+              orderBy: { order: "asc" },
+              include: {
+                lessons: {
+                  orderBy: { order: "asc" },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -86,11 +179,12 @@ export class CoursesService {
   }
 
   async update(id: number, updateCourseDto: UpdateCourseDto) {
-    await this.findById(id);
+    const existingCourse = await this.findById(id);
 
-    // Se o título mudou, atualizar slug
-    const data: any = { ...updateCourseDto };
-    if (updateCourseDto.title) {
+    const { modules, ...courseData } = updateCourseDto;
+    const data: any = { ...courseData };
+
+    if (updateCourseDto.title && updateCourseDto.title !== existingCourse.title) {
       data.slug = this.generateSlug(updateCourseDto.title);
 
       // Verificar slug duplicado
@@ -102,14 +196,186 @@ export class CoursesService {
       }
     }
 
-    return this.prisma.course.update({
-      where: { id },
-      data,
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Atualizar informações básicas do curso
+      await tx.course.update({
+        where: { id },
+        data,
+      });
+
+      // 2. Se a grade curricular (modules) for enviada, limpar a antiga e criar a nova
+      if (modules !== undefined && Array.isArray(modules)) {
+        // Encontrar IDs de módulos antigos
+        const oldModules = await tx.module.findMany({
+          where: { courseId: id },
+          select: { id: true },
+        });
+        const oldModuleIds = oldModules.map((m) => m.id);
+
+        if (oldModuleIds.length > 0) {
+          // Encontrar IDs de matérias antigas
+          const oldSubjects = await tx.subject.findMany({
+            where: { moduleId: { in: oldModuleIds } },
+            select: { id: true },
+          });
+          const oldSubjectIds = oldSubjects.map((s) => s.id);
+
+          if (oldSubjectIds.length > 0) {
+            // Deletar presenças vinculadas a estas aulas para evitar erro de FK
+            const oldLessons = await tx.lesson.findMany({
+              where: { subjectId: { in: oldSubjectIds } },
+              select: { id: true },
+            });
+            const oldLessonIds = oldLessons.map((l) => l.id);
+
+            if (oldLessonIds.length > 0) {
+              await tx.attendance.deleteMany({
+                where: { lessonId: { in: oldLessonIds } },
+              });
+              await tx.lesson.deleteMany({
+                where: { id: { in: oldLessonIds } },
+              });
+            }
+            await tx.subject.deleteMany({
+              where: { id: { in: oldSubjectIds } },
+            });
+          }
+          await tx.module.deleteMany({
+            where: { id: { in: oldModuleIds } },
+          });
+        }
+
+        // Criar a nova grade
+        for (let mIdx = 0; mIdx < modules.length; mIdx++) {
+          const mod = modules[mIdx];
+          const dbModule = await tx.module.create({
+            data: {
+              courseId: id,
+              title: mod.title,
+              description: mod.description || null,
+              order: mod.order ?? mIdx,
+            },
+          });
+
+          if (mod.subjects && Array.isArray(mod.subjects)) {
+            for (let sIdx = 0; sIdx < mod.subjects.length; sIdx++) {
+              const sub = mod.subjects[sIdx];
+              const dbSubject = await tx.subject.create({
+                data: {
+                  moduleId: dbModule.id,
+                  title: sub.title,
+                  description: sub.description || null,
+                  order: sub.order ?? sIdx,
+                },
+              });
+
+              if (sub.lessons && Array.isArray(sub.lessons)) {
+                for (let lIdx = 0; lIdx < sub.lessons.length; lIdx++) {
+                  const les = sub.lessons[lIdx];
+                  await tx.lesson.create({
+                    data: {
+                      subjectId: dbSubject.id,
+                      title: les.title,
+                      description: les.description || null,
+                      type: les.type || "VIDEO",
+                      videoUrl: les.videoUrl || null,
+                      content: les.content || null,
+                      duration: les.duration ? Number(les.duration) : null,
+                      order: les.order ?? lIdx,
+                    },
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return tx.course.findUnique({
+        where: { id },
+        include: {
+          modules: {
+            orderBy: { order: "asc" },
+            include: {
+              subjects: {
+                orderBy: { order: "asc" },
+                include: {
+                  lessons: {
+                    orderBy: { order: "asc" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
     });
   }
 
   async remove(id: number) {
-    await this.findById(id);
-    return this.prisma.course.delete({ where: { id } });
+    const course = await this.findById(id);
+
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Limpar toda a estrutura de módulos -> matérias -> aulas -> presenças
+      const oldModules = await tx.module.findMany({
+        where: { courseId: id },
+        select: { id: true },
+      });
+      const oldModuleIds = oldModules.map((m) => m.id);
+
+      if (oldModuleIds.length > 0) {
+        const oldSubjects = await tx.subject.findMany({
+          where: { moduleId: { in: oldModuleIds } },
+          select: { id: true },
+        });
+        const oldSubjectIds = oldSubjects.map((s) => s.id);
+
+        if (oldSubjectIds.length > 0) {
+          const oldLessons = await tx.lesson.findMany({
+            where: { subjectId: { in: oldSubjectIds } },
+            select: { id: true },
+          });
+          const oldLessonIds = oldLessons.map((l) => l.id);
+
+          if (oldLessonIds.length > 0) {
+            await tx.attendance.deleteMany({
+              where: { lessonId: { in: oldLessonIds } },
+            });
+            await tx.lesson.deleteMany({
+              where: { id: { in: oldLessonIds } },
+            });
+          }
+          await tx.subject.deleteMany({
+            where: { id: { in: oldSubjectIds } },
+          });
+        }
+        await tx.module.deleteMany({
+          where: { id: { in: oldModuleIds } },
+        });
+      }
+
+      // 2. Limpar turmas e inscrições
+      const oldClasses = await tx.class.findMany({
+        where: { courseId: id },
+        select: { id: true },
+      });
+      const oldClassIds = oldClasses.map((c) => c.id);
+
+      if (oldClassIds.length > 0) {
+        await tx.payment.deleteMany({
+          where: { enrollment: { classId: { in: oldClassIds } } },
+        });
+        await tx.enrollment.deleteMany({
+          where: { classId: { in: oldClassIds } },
+        });
+        await tx.class.deleteMany({
+          where: { id: { in: oldClassIds } },
+        });
+      }
+
+      // 3. Deletar curso
+      return tx.course.delete({ where: { id } });
+    });
   }
 }
+

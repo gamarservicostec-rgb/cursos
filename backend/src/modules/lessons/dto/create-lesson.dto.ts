@@ -1,4 +1,4 @@
-import {
+﻿import {
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -10,7 +10,7 @@ import {
 export class CreateLessonDto {
   @IsInt()
   @IsNotEmpty()
-  courseId: number;
+  subjectId: number;
 
   @IsString()
   @IsNotEmpty()
@@ -27,7 +27,7 @@ export class CreateLessonDto {
   @IsInt()
   @Min(1)
   @IsOptional()
-  duration?: number; // duração em minutos
+  duration?: number; // duraÃ§Ã£o em minutos
 
   @IsInt()
   @Min(0)

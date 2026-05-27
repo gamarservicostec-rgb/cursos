@@ -34,6 +34,13 @@ export class UpdateCourseDto {
   thumbnail?: string;
 
   @IsOptional()
+  @IsString()
+  bannerUrl?: string;
+
+  @IsOptional()
+  modules?: any[];
+
+  @IsOptional()
   @IsEnum(CourseStatus, {
     message: "Status deve ser DRAFT, PUBLISHED ou ARCHIVED",
   })

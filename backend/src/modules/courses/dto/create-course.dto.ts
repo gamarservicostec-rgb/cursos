@@ -32,4 +32,11 @@ export class CreateCourseDto {
   @IsOptional()
   @IsString()
   thumbnail?: string;
+
+  @IsOptional()
+  @IsString()
+  bannerUrl?: string;
+
+  @IsOptional()
+  modules?: any[];
 }

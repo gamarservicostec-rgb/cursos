@@ -33,6 +33,11 @@ export class CoursesController {
     return this.coursesService.findAll(status);
   }
 
+  @Get("id/:id")
+  findById(@Param("id", ParseIntPipe) id: number) {
+    return this.coursesService.findById(id);
+  }
+
   @Get(":slug")
   findBySlug(@Param("slug") slug: string) {
     return this.coursesService.findBySlug(slug);
