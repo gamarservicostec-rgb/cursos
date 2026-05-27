@@ -86,10 +86,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="glass-panel flex-1 rounded-[2rem] flex flex-col overflow-hidden relative shadow-[0_0_40px_rgba(234,179,8,0.05)] border border-white/5">
           {/* Top Logo */}
           <div className="flex items-center gap-4 px-8 py-8">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-gray-900 text-lg shadow-[0_0_20px_rgba(234,179,8,0.4)]"
-              style={{ background: 'var(--gradient-gold)' }}>
-              GT
-            </div>
+            <img src="/logos/logo.png" alt="Cursos GT Logo" className="w-10 h-10 object-contain shadow-[0_0_20px_rgba(234,179,8,0.2)]" />
             <div className="flex flex-col">
               <span className="font-extrabold text-xl tracking-tight text-white">Cursos GT</span>
               <span className="text-xs text-yellow-500/80 uppercase tracking-widest font-semibold">Admin</span>

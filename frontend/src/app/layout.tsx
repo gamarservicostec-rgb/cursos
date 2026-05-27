@@ -7,6 +7,11 @@ export const metadata: Metadata = {
   description:
     'Matrícula online, ensino presencial controlado. Capacite-se com os melhores cursos profissionalizantes.',
   keywords: ['cursos', 'ensino', 'profissionalizante', 'presencial', 'online'],
+  icons: {
+    icon: '/logos/logo.png',
+    shortcut: '/logos/logo.png',
+    apple: '/logos/logo.png',
+  },
 };
 
 export default function RootLayout({

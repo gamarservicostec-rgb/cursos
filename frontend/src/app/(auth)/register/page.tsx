@@ -86,11 +86,11 @@ export default function RegisterPage() {
 
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
-        <div className="text-center mb-8 animate-fade-in-up">
-          <a href="/" className="inline-block">
-            <h1 className="text-4xl font-bold gradient-text">Cursos GT</h1>
+        <div className="text-center mb-6 animate-fade-in-up flex flex-col items-center justify-center">
+          <a href="/" className="inline-block mb-3">
+            <img src="/logos/logo.png" alt="Cursos GT Logo" className="h-16 w-auto object-contain mx-auto" />
           </a>
-          <p className="text-slate-400 mt-2">Crie sua conta e comece a aprender</p>
+          <p className="text-slate-400">Crie sua conta e comece a aprender</p>
         </div>
 
         {/* Card */}

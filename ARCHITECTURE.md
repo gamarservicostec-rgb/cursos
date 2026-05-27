@@ -46,6 +46,11 @@ Modelagem relacional profunda cobrindo fluxos essenciais:
 - Salvamento local no servidor (HostGator) dentro da pasta `public/uploads`.
 - Imagens categorizadas: `thumbnail` (capas dos cards) e `banner` (banner topo do curso).
 - A interface de administração possui componentes de "Drag and Drop" para envio desses arquivos.
+
+### 6. Identidade Visual e Logotipo Oficial
+- O logotipo oficial da marca **Cursos GT** está centralizado e armazenado fisicamente sob a pasta de recursos estáticos do frontend em `frontend/public/logos/logo.png`.
+- Favicon oficial unificado mapeado em `frontend/public/favicon.png` e `frontend/src/app/favicon.ico`.
+- Todos os layouts (navbar, sidebar do painel administrativo, painel do aluno), páginas públicas (Home, Cursos, Detalhes, Checkout) e formulários de autenticação (Login, Cadastro) devem utilizar a referência de imagem `/logos/logo.png` em substituição a qualquer placeholder de texto ou círculo fictício.
 ---
 
 ## Fluxo de Dados Principal: Consumo Híbrido (O "Coração" do App)
