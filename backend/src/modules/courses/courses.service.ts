@@ -34,45 +34,22 @@ export class CoursesService {
     const { modules, ...courseData } = createCourseDto;
 
     return this.prisma.$transaction(async (tx) => {
-      // 1. Criar o curso
-      const course = await tx.course.create({
+      return tx.course.create({
         data: {
           ...courseData,
           slug,
-        },
-      });
-
-      // 2. Criar os módulos, matérias e aulas recursivamente se fornecidos
-      if (modules && Array.isArray(modules)) {
-        for (let mIdx = 0; mIdx < modules.length; mIdx++) {
-          const mod = modules[mIdx];
-          const dbModule = await tx.module.create({
-            data: {
-              courseId: course.id,
+          modules: modules && Array.isArray(modules) ? {
+            create: modules.map((mod, mIdx) => ({
               title: mod.title,
               description: mod.description || null,
               order: mod.order ?? mIdx,
-            },
-          });
-
-          if (mod.subjects && Array.isArray(mod.subjects)) {
-            for (let sIdx = 0; sIdx < mod.subjects.length; sIdx++) {
-              const sub = mod.subjects[sIdx];
-              const dbSubject = await tx.subject.create({
-                data: {
-                  moduleId: dbModule.id,
+              subjects: {
+                create: (mod.subjects || []).map((sub, sIdx) => ({
                   title: sub.title,
                   description: sub.description || null,
                   order: sub.order ?? sIdx,
-                },
-              });
-
-              if (sub.lessons && Array.isArray(sub.lessons)) {
-                for (let lIdx = 0; lIdx < sub.lessons.length; lIdx++) {
-                  const les = sub.lessons[lIdx];
-                  await tx.lesson.create({
-                    data: {
-                      subjectId: dbSubject.id,
+                  lessons: {
+                    create: (sub.lessons || []).map((les, lIdx) => ({
                       title: les.title,
                       description: les.description || null,
                       type: les.type || "VIDEO",
@@ -80,23 +57,23 @@ export class CoursesService {
                       content: les.content || null,
                       duration: les.duration ? Number(les.duration) : null,
                       order: les.order ?? lIdx,
-                    },
-                  });
-                }
-              }
-            }
-          }
-        }
-      }
-
-      return tx.course.findUnique({
-        where: { id: course.id },
+                    })),
+                  },
+                })),
+              },
+            })),
+          } : undefined,
+        },
         include: {
           modules: {
+            orderBy: { order: "asc" },
             include: {
               subjects: {
+                orderBy: { order: "asc" },
                 include: {
-                  lessons: true,
+                  lessons: {
+                    orderBy: { order: "asc" },
+                  },
                 },
               },
             },
@@ -197,15 +174,8 @@ export class CoursesService {
     }
 
     return this.prisma.$transaction(async (tx) => {
-      // 1. Atualizar informações básicas do curso
-      await tx.course.update({
-        where: { id },
-        data,
-      });
-
-      // 2. Se a grade curricular (modules) for enviada, limpar a antiga e criar a nova
+      // 1. Se a grade curricular (modules) for enviada, limpar a antiga
       if (modules !== undefined && Array.isArray(modules)) {
-        // Encontrar IDs de módulos antigos
         const oldModules = await tx.module.findMany({
           where: { courseId: id },
           select: { id: true },
@@ -213,7 +183,6 @@ export class CoursesService {
         const oldModuleIds = oldModules.map((m) => m.id);
 
         if (oldModuleIds.length > 0) {
-          // Encontrar IDs de matérias antigas
           const oldSubjects = await tx.subject.findMany({
             where: { moduleId: { in: oldModuleIds } },
             select: { id: true },
@@ -221,7 +190,6 @@ export class CoursesService {
           const oldSubjectIds = oldSubjects.map((s) => s.id);
 
           if (oldSubjectIds.length > 0) {
-            // Deletar presenças vinculadas a estas aulas para evitar erro de FK
             const oldLessons = await tx.lesson.findMany({
               where: { subjectId: { in: oldSubjectIds } },
               select: { id: true },
@@ -245,54 +213,38 @@ export class CoursesService {
           });
         }
 
-        // Criar a nova grade
-        for (let mIdx = 0; mIdx < modules.length; mIdx++) {
-          const mod = modules[mIdx];
-          const dbModule = await tx.module.create({
-            data: {
-              courseId: id,
-              title: mod.title,
-              description: mod.description || null,
-              order: mod.order ?? mIdx,
-            },
-          });
-
-          if (mod.subjects && Array.isArray(mod.subjects)) {
-            for (let sIdx = 0; sIdx < mod.subjects.length; sIdx++) {
-              const sub = mod.subjects[sIdx];
-              const dbSubject = await tx.subject.create({
-                data: {
-                  moduleId: dbModule.id,
-                  title: sub.title,
-                  description: sub.description || null,
-                  order: sub.order ?? sIdx,
+        // Injetar os novos módulos via nested create na query de update do curso
+        data.modules = {
+          create: modules.map((mod, mIdx) => ({
+            title: mod.title,
+            description: mod.description || null,
+            order: mod.order ?? mIdx,
+            subjects: {
+              create: (mod.subjects || []).map((sub, sIdx) => ({
+                title: sub.title,
+                description: sub.description || null,
+                order: sub.order ?? sIdx,
+                lessons: {
+                  create: (sub.lessons || []).map((les, lIdx) => ({
+                    title: les.title,
+                    description: les.description || null,
+                    type: les.type || "VIDEO",
+                    videoUrl: les.videoUrl || null,
+                    content: les.content || null,
+                    duration: les.duration ? Number(les.duration) : null,
+                    order: les.order ?? lIdx,
+                  })),
                 },
-              });
-
-              if (sub.lessons && Array.isArray(sub.lessons)) {
-                for (let lIdx = 0; lIdx < sub.lessons.length; lIdx++) {
-                  const les = sub.lessons[lIdx];
-                  await tx.lesson.create({
-                    data: {
-                      subjectId: dbSubject.id,
-                      title: les.title,
-                      description: les.description || null,
-                      type: les.type || "VIDEO",
-                      videoUrl: les.videoUrl || null,
-                      content: les.content || null,
-                      duration: les.duration ? Number(les.duration) : null,
-                      order: les.order ?? lIdx,
-                    },
-                  });
-                }
-              }
-            }
-          }
-        }
+              })),
+            },
+          })),
+        };
       }
 
-      return tx.course.findUnique({
+      // 2. Atualizar informações básicas do curso e criar novos módulos de uma só vez!
+      return tx.course.update({
         where: { id },
+        data,
         include: {
           modules: {
             orderBy: { order: "asc" },

@@ -4,7 +4,14 @@ import {
   IsOptional,
   IsNumber,
   Min,
+  IsEnum,
 } from "class-validator";
+
+enum CourseStatus {
+  DRAFT = "DRAFT",
+  PUBLISHED = "PUBLISHED",
+  ARCHIVED = "ARCHIVED",
+}
 
 export class CreateCourseDto {
   @IsString()
@@ -36,6 +43,12 @@ export class CreateCourseDto {
   @IsOptional()
   @IsString()
   bannerUrl?: string;
+
+  @IsOptional()
+  @IsEnum(CourseStatus, {
+    message: "Status deve ser DRAFT, PUBLISHED ou ARCHIVED",
+  })
+  status?: CourseStatus;
 
   @IsOptional()
   modules?: any[];
