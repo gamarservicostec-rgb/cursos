@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
-import serverlessExpress from '@vendia/serverless-express';
 
 let cachedServer: any;
 
@@ -16,10 +15,9 @@ async function bootstrap() {
         transform: true,
       }),
     );
-    // Removemos o app.setGlobalPrefix('api') para a Vercel gerenciar as rotas mais facilmente
     await app.init();
-    const expressApp = app.getHttpAdapter().getInstance();
-    cachedServer = serverlessExpress({ app: expressApp });
+    // Vercel handles raw req/res objects just like Express, no need for AWS serverless wrappers
+    cachedServer = app.getHttpAdapter().getInstance();
   }
   return cachedServer;
 }
