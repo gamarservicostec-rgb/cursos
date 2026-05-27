@@ -43,11 +43,11 @@ export default function LoginPage() {
 
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
-        <div className="text-center mb-6 animate-fade-in-up flex flex-col items-center justify-center">
-          <a href="/" className="inline-block mb-3">
-            <img src="/logos/logo.png" alt="Cursos GT Logo" className="h-16 w-auto object-contain mx-auto" />
+        <div className="text-center mb-8 animate-fade-in-up flex flex-col items-center justify-center">
+          <a href="/" className="inline-block mb-4">
+            <img src="/logos/logo.png" alt="Cursos GT Logo" className="h-28 w-auto object-contain mx-auto drop-shadow-[0_0_20px_rgba(234,179,8,0.55)] transition-all hover:scale-105 duration-300" />
           </a>
-          <p className="text-slate-400">Acesse sua conta</p>
+          <p className="text-slate-300 text-lg font-medium tracking-wide">Acesse sua conta</p>
         </div>
 
         {/* Card */}

@@ -241,10 +241,10 @@ export default function CheckoutClient() {
             {/* Right: Payment form */}
             <div className="lg:col-span-7">
               <div className="glass rounded-2xl p-8 border border-slate-700/40">
-                <div className="flex items-center gap-3 mb-6">
-                  <img src="/logos/logo.png" alt="Cursos GT Logo" className="w-10 h-10 object-contain" />
-                  <div className="h-6 w-px bg-slate-700/60" />
-                  <h2 className="text-2xl font-bold text-white">Finalizar Matrícula</h2>
+                <div className="flex items-center gap-4 mb-6">
+                  <img src="/logos/logo.png" alt="Cursos GT Logo" className="w-14 h-14 object-contain drop-shadow-[0_0_15px_rgba(234,179,8,0.45)] transition-all hover:scale-105" />
+                  <div className="h-8 w-px bg-slate-700/60" />
+                  <h2 className="text-2xl font-bold text-white tracking-tight">Finalizar Matrícula</h2>
                 </div>
 
                 {error && (

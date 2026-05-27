@@ -102,11 +102,68 @@ export default function NewCoursePage() {
     }
   }, [courseId]);
 
+  // Compress image helper
+  const compressImage = (file: File, maxWidth: number, maxHeight: number): Promise<File> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            } else {
+              resolve(file);
+            }
+          }, 'image/jpeg', 0.85); // Alta qualidade (85%) com excelente compressão
+        };
+        img.onerror = () => resolve(file);
+      };
+      reader.onerror = () => resolve(file);
+    });
+  };
+
   // Handle image upload
   const handleImageUpload = async (file: File, type: 'thumbnail' | 'banner') => {
     try {
       setError('');
-      const res = await api.uploadFile(file);
+      setSaving(true); // Mostrar estado de salvamento/carregamento ao comprimir e subir
+      
+      // Comprimir imagem dependendo do tipo para manter tamanho ideal e leve
+      const maxWidth = type === 'thumbnail' ? 800 : 1600;
+      const maxHeight = type === 'thumbnail' ? 600 : 900;
+      
+      const compressedFile = await compressImage(file, maxWidth, maxHeight);
+      console.log(`Image compressed from ${file.size} to ${compressedFile.size} bytes`);
+      
+      const res = await api.uploadFile(compressedFile);
       if (type === 'thumbnail') {
         setThumbnail(res.url);
       } else {
@@ -115,6 +172,8 @@ export default function NewCoursePage() {
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Erro ao fazer upload da imagem.');
+    } finally {
+      setSaving(false);
     }
   };
 

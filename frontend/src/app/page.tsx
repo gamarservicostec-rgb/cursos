@@ -30,9 +30,9 @@ export default function HomePage() {
       {/* ── Navbar ── */}
       <nav className="fixed top-0 inset-x-0 z-50 glass border-b border-slate-700/40">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2.5">
-            <img src="/logos/logo.png" alt="Cursos GT Logo" className="w-9 h-9 object-contain" />
-            <span className="text-lg font-bold text-white">Cursos GT</span>
+          <a href="/" className="flex items-center gap-3">
+            <img src="/logos/logo.png" alt="Cursos GT Logo" className="w-13 h-13 object-contain drop-shadow-[0_0_15px_rgba(234,179,8,0.45)] transition-all hover:scale-105" />
+            <span className="text-xl font-extrabold text-white tracking-tight">Cursos GT</span>
           </a>
           <div className="hidden md:flex items-center gap-8">
             <a href="#cursos" className="text-sm text-slate-300 hover:text-white transition-colors">Cursos</a>
@@ -344,9 +344,9 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             <div className="md:col-span-2">
-              <div className="flex items-center gap-2.5 mb-4">
-                <img src="/logos/logo.png" alt="Cursos GT Logo" className="w-9 h-9 object-contain" />
-                <span className="text-lg font-bold text-white">Cursos GT</span>
+              <div className="flex items-center gap-3 mb-4">
+                <img src="/logos/logo.png" alt="Cursos GT Logo" className="w-13 h-13 object-contain drop-shadow-[0_0_15px_rgba(234,179,8,0.45)] transition-all hover:scale-105" />
+                <span className="text-xl font-extrabold text-white tracking-tight">Cursos GT</span>
               </div>
               <p className="text-slate-400 leading-relaxed max-w-sm">
                 Plataforma híbrida de ensino profissionalizante. Matrícula online, aulas presenciais com presença controlada.

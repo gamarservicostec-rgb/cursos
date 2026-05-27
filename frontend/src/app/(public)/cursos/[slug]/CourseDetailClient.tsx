@@ -75,9 +75,9 @@ export default function CourseDetailClient() {
       {/* Navbar */}
       <nav className="fixed top-0 inset-x-0 z-50 glass border-b border-slate-700/40">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2.5">
-            <img src="/logos/logo.png" alt="Cursos GT Logo" className="w-9 h-9 object-contain" />
-            <span className="text-lg font-bold text-white">Cursos GT</span>
+          <a href="/" className="flex items-center gap-3">
+            <img src="/logos/logo.png" alt="Cursos GT Logo" className="w-13 h-13 object-contain drop-shadow-[0_0_15px_rgba(234,179,8,0.45)] transition-all hover:scale-105" />
+            <span className="text-xl font-extrabold text-white tracking-tight">Cursos GT</span>
           </a>
           <div className="flex items-center gap-3">
             <a href="/cursos" className="text-sm text-slate-300 hover:text-white transition-colors px-3 py-2">Cursos</a>
