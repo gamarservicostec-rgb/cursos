@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, 
@@ -101,7 +102,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               const isActive = currentPath === item.href;
               const Icon = item.icon;
               return (
-                <a
+                <Link
                   key={item.href}
                   href={item.href}
                   className="relative block"
@@ -124,7 +125,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       />
                     )}
                   </motion.div>
-                </a>
+                </Link>
               );
             })}
           </nav>
