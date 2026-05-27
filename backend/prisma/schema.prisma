@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  STUDENT
+  INSTRUCTOR
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ClassStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum EnrollmentStatus {
+  PENDING_PAYMENT
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+// ─── Models ──────────────────────────────────────────────
+
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  password  String
+  name      String
+  phone     String?
+  cpf       String?    @unique
+  role      UserRole   @default(STUDENT)
+  status    UserStatus @default(ACTIVE)
+  avatarUrl String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  enrollments Enrollment[]
+  attendances Attendance[]
+
+  @@map("users")
+}
+
+model Course {
+  id          Int          @id @default(autoincrement())
+  title       String
+  slug        String       @unique
+  description String?
+  summary     String?
+  price       Float        @default(0)
+  duration    Int?         // duração em horas
+  thumbnail   String?
+  status      CourseStatus @default(DRAFT)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  classes Class[]
+  lessons Lesson[]
+
+  @@map("courses")
+}
+
+model Class {
+  id          Int         @id @default(autoincrement())
+  courseId    Int
+  name        String      // ex: "Turma A - Manhã"
+  startDate   DateTime
+  endDate     DateTime
+  schedule    String?     // ex: "Seg/Qua/Sex 08:00-12:00"
+  maxStudents Int         @default(30)
+  status      ClassStatus @default(SCHEDULED)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  course      Course       @relation(fields: [courseId], references: [id])
+  enrollments Enrollment[]
+
+  @@map("classes")
+}
+
+model Enrollment {
+  id         Int              @id @default(autoincrement())
+  userId     Int
+  classId    Int
+  status     EnrollmentStatus @default(PENDING_PAYMENT)
+  enrolledAt DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id])
+  class Class @relation(fields: [classId], references: [id])
+  payments Payment[]
+
+  @@unique([userId, classId])
+  @@map("enrollments")
+}
+
+model Lesson {
+  id          Int      @id @default(autoincrement())
+  courseId    Int
+  title       String
+  description String?
+  videoUrl    String?
+  duration    Int?     // duration in minutes
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course      Course       @relation(fields: [courseId], references: [id])
+  attendances Attendance[]
+
+  @@map("lessons")
+}
+
+model LocalNode {
+  id          Int      @id @default(autoincrement())
+  name        String   // e.g., "Unidade Centro"
+  secretKey   String   // Secret used for TOTP/JWT generation
+  ipAddress   String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  attendances Attendance[]
+
+  @@map("local_nodes")
+}
+
+model Attendance {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  lessonId    Int
+  localNodeId Int
+  checkInAt   DateTime @default(now())
+  isValid     Boolean  @default(true)
+
+  user      User      @relation(fields: [userId], references: [id])
+  lesson    Lesson    @relation(fields: [lessonId], references: [id])
+  localNode LocalNode @relation(fields: [localNodeId], references: [id])
+
+  @@unique([userId, lessonId])
+  @@map("attendances")
+}
+
+model Payment {
+  id            Int      @id @default(autoincrement())
+  enrollmentId  Int
+  amount        Float
+  status        String   // PENDING, APPROVED, REJECTED, REFUNDED
+  externalId    String?  // MercadoPago ID
+  paymentMethod String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id])
+
+  @@map("payments")
+}
