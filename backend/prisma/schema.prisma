@@ -35,6 +35,12 @@ enum ClassStatus {
   CANCELLED
 }
 
+enum LessonType {
+  VIDEO
+  TEXT
+  QUIZ
+}
+
 enum EnrollmentStatus {
   PENDING_PAYMENT
   ACTIVE
@@ -68,28 +74,59 @@ model Course {
   id          Int          @id @default(autoincrement())
   title       String
   slug        String       @unique
-  description String?
-  summary     String?
+  description String?      @db.Text
+  summary     String?      @db.Text
   price       Float        @default(0)
-  duration    Int?         // duração em horas
+  duration    Int? // duração em horas
   thumbnail   String?
+  bannerUrl   String?
   status      CourseStatus @default(DRAFT)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
   classes Class[]
-  lessons Lesson[]
+  modules Module[]
 
   @@map("courses")
+}
+
+model Module {
+  id          Int      @id @default(autoincrement())
+  courseId    Int
+  title       String
+  description String?  @db.Text
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course   Course    @relation(fields: [courseId], references: [id])
+  subjects Subject[]
+
+  @@map("modules")
+}
+
+model Subject {
+  id          Int      @id @default(autoincrement())
+  moduleId    Int
+  title       String
+  description String?  @db.Text
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  module  Module   @relation(fields: [moduleId], references: [id])
+  lessons Lesson[]
+
+  @@map("subjects")
 }
 
 model Class {
   id          Int         @id @default(autoincrement())
   courseId    Int
-  name        String      // ex: "Turma A - Manhã"
+  name        String // ex: "Turma A - Manhã"
   startDate   DateTime
   endDate     DateTime
-  schedule    String?     // ex: "Seg/Qua/Sex 08:00-12:00"
+  schedule    String? // ex: "Seg/Qua/Sex 08:00-12:00"
   maxStudents Int         @default(30)
   status      ClassStatus @default(SCHEDULED)
   createdAt   DateTime    @default(now())
@@ -109,8 +146,8 @@ model Enrollment {
   enrolledAt DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
 
-  user  User  @relation(fields: [userId], references: [id])
-  class Class @relation(fields: [classId], references: [id])
+  user     User      @relation(fields: [userId], references: [id])
+  class    Class     @relation(fields: [classId], references: [id])
   payments Payment[]
 
   @@unique([userId, classId])
@@ -118,30 +155,32 @@ model Enrollment {
 }
 
 model Lesson {
-  id          Int      @id @default(autoincrement())
-  courseId    Int
+  id          Int        @id @default(autoincrement())
+  subjectId   Int?
   title       String
-  description String?
-  videoUrl    String?
-  duration    Int?     // duration in minutes
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  description String?    @db.Text
+  type        LessonType @default(VIDEO)
+  videoUrl    String? // Bunny.net Video ID or embedded URL
+  content     String?    @db.LongText // Rich text content for TEXT lessons
+  duration    Int? // duration in minutes
+  order       Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
-  course      Course       @relation(fields: [courseId], references: [id])
+  subject     Subject?      @relation(fields: [subjectId], references: [id])
   attendances Attendance[]
 
   @@map("lessons")
 }
 
 model LocalNode {
-  id          Int      @id @default(autoincrement())
-  name        String   // e.g., "Unidade Centro"
-  secretKey   String   // Secret used for TOTP/JWT generation
-  ipAddress   String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  name      String // e.g., "Unidade Centro"
+  secretKey String // Secret used for TOTP/JWT generation
+  ipAddress String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   attendances Attendance[]
 
@@ -168,8 +207,8 @@ model Payment {
   id            Int      @id @default(autoincrement())
   enrollmentId  Int
   amount        Float
-  status        String   // PENDING, APPROVED, REJECTED, REFUNDED
-  externalId    String?  // MercadoPago ID
+  status        String // PENDING, APPROVED, REJECTED, REFUNDED
+  externalId    String? // MercadoPago ID
   paymentMethod String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

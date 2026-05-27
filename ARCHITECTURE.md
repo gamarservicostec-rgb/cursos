@@ -32,14 +32,20 @@ Um daemon ou microserviço rodando na intranet da unidade física.
 - Permite que a rede local valide a presença antes de liberar a comunicação com o Backend Central.
 
 ### 4. Camada de Banco de Dados (MySQL)
-Modelagem relacional cobrindo fluxos essenciais:
+Modelagem relacional profunda cobrindo fluxos essenciais:
 - `Users` (Alunos, Professores, Admins).
-- `Courses`, `Classes`, `Lessons`.
-- `Enrollments` (vínculo Aluno-Turma).
+- Hierarquia de Conteúdo: `Courses` ➔ `Modules` ➔ `Subjects` ➔ `Lessons`.
+- `LessonType` suportando: VIDEO (Bunny.net), TEXT e QUIZ.
+- `Classes` (Turmas) e `Enrollments` (vínculo Aluno-Turma).
 - `Attendances` (Registro de presença vinculado a uma aula).
 - `LocalNodes` (Registro das filiais/unidades).
 - `Payments` (Logs transacionais).
 
+### 5. Sistema de Armazenamento e Upload (Local/HostGator)
+- Upload via endpoint `POST /api/upload` (Node.js/Express ou rota do Next.js).
+- Salvamento local no servidor (HostGator) dentro da pasta `public/uploads`.
+- Imagens categorizadas: `thumbnail` (capas dos cards) e `banner` (banner topo do curso).
+- A interface de administração possui componentes de "Drag and Drop" para envio desses arquivos.
 ---
 
 ## Fluxo de Dados Principal: Consumo Híbrido (O "Coração" do App)
