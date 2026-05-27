@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { api } from '@/services/api';
+import { motion } from 'framer-motion';
+import { Users, BookOpen, Layers, DollarSign, Plus, Settings, PlayCircle, MoreHorizontal } from 'lucide-react';
 
 interface DashboardStats {
   totalStudents: number;
@@ -17,7 +19,6 @@ export default function DashboardPage() {
     totalEnrollments: 0,
     activeClasses: 0,
   });
-  const [recentEnrollments, setRecentEnrollments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,10 +40,6 @@ export default function DashboardPage() {
         activeClasses: classes.status === 'fulfilled' ? classes.value.filter((c: any) => c.status === 'SCHEDULED' || c.status === 'IN_PROGRESS').length : 0,
         totalEnrollments: enrollments.status === 'fulfilled' ? enrollments.value.length : 0,
       });
-
-      if (enrollments.status === 'fulfilled') {
-        setRecentEnrollments(enrollments.value.slice(0, 5));
-      }
     } catch (err) {
       console.error('Erro ao carregar dashboard:', err);
     } finally {
@@ -54,224 +51,221 @@ export default function DashboardPage() {
     {
       title: 'Alunos',
       value: stats.totalStudents,
-      icon: (
-        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-      ),
-      gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-      bgGlow: 'rgba(59, 130, 246, 0.1)',
+      icon: Users,
     },
     {
       title: 'Cursos',
       value: stats.totalCourses,
-      icon: (
-        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-        </svg>
-      ),
-      gradient: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
-      bgGlow: 'rgba(139, 92, 246, 0.1)',
+      icon: BookOpen,
     },
     {
-      title: 'Turmas Ativas',
+      title: 'Turmas',
       value: stats.activeClasses,
-      icon: (
-        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-      ),
-      gradient: 'linear-gradient(135deg, #d946ef, #a21caf)',
-      bgGlow: 'rgba(217, 70, 239, 0.1)',
+      icon: Layers,
     },
     {
       title: 'Matrículas',
       value: stats.totalEnrollments,
-      icon: (
-        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-        </svg>
-      ),
-      gradient: 'linear-gradient(135deg, #10b981, #059669)',
-      bgGlow: 'rgba(16, 185, 129, 0.1)',
+      icon: DollarSign,
     },
   ];
-
-  const statusColors: Record<string, { bg: string; text: string; label: string }> = {
-    PENDING_PAYMENT: { bg: 'rgba(245, 158, 11, 0.15)', text: '#fbbf24', label: 'Pend. Pagamento' },
-    ACTIVE: { bg: 'rgba(34, 197, 94, 0.15)', text: '#4ade80', label: 'Ativa' },
-    COMPLETED: { bg: 'rgba(59, 130, 246, 0.15)', text: '#60a5fa', label: 'Concluída' },
-    CANCELLED: { bg: 'rgba(239, 68, 68, 0.15)', text: '#f87171', label: 'Cancelada' },
-    EXPIRED: { bg: 'rgba(107, 114, 128, 0.15)', text: '#9ca3af', label: 'Expirada' },
-  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <svg className="animate-spin h-8 w-8 text-blue-500" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-        </svg>
+        <motion.div 
+          animate={{ scale: [0.9, 1.1, 0.9], opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="w-12 h-12 rounded-full border-4 border-yellow-500 border-t-transparent animate-spin"
+        />
       </div>
     );
   }
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
   return (
-    <div className="space-y-8 animate-fade-in-up">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-        <p className="text-slate-400 mt-1">Visão geral da plataforma</p>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400 tracking-tight">
+            Gestão de Cursos
+          </h2>
+          <p className="text-slate-400 mt-1 text-sm font-medium">Visão geral do LMS e métricas principais</p>
+        </div>
+        <button className="btn-gold flex items-center gap-2 neon-border w-fit">
+          <Plus className="w-5 h-5" />
+          Criar Novo Curso
+        </button>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {statCards.map((card, index) => (
-          <div
-            key={card.title}
-            className="glass rounded-2xl p-6 card-hover relative overflow-hidden"
-            style={{ animationDelay: `${index * 0.1}s` }}
-          >
-            {/* Background glow */}
-            <div
-              className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl"
-              style={{ backgroundColor: card.bgGlow }}
-            />
-
-            <div className="relative z-10 flex items-start justify-between">
-              <div>
-                <p className="text-sm text-slate-400 font-medium">{card.title}</p>
-                <p className="text-4xl font-bold text-white mt-2">{card.value}</p>
+      {/* Metrics Grid */}
+      <motion.div 
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
+        {statCards.map((card, index) => {
+          const Icon = card.icon;
+          return (
+            <motion.div
+              key={card.title}
+              variants={item}
+              className="glass-card rounded-[2rem] p-6 relative overflow-hidden group"
+            >
+              {/* Glow Background Hover Effect */}
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-yellow-500/20 rounded-full blur-[50px] group-hover:bg-yellow-400/30 transition-colors duration-500" />
+              
+              <div className="relative z-10 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-slate-400 font-medium text-sm">{card.title}</p>
+                  <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.1)] group-hover:shadow-[0_0_20px_rgba(234,179,8,0.3)] transition-shadow">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                </div>
+                <div className="flex items-end gap-3">
+                  <h3 className="text-4xl font-black text-white tracking-tight">
+                    {card.value.toLocaleString()}
+                  </h3>
+                </div>
               </div>
-              <div
-                className="p-3 rounded-xl text-white"
-                style={{ background: card.gradient }}
-              >
-                {card.icon}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+            </motion.div>
+          );
+        })}
+      </motion.div>
 
-      {/* Recent Enrollments */}
-      <div className="glass rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-bold text-white">Matrículas Recentes</h2>
-            <p className="text-sm text-slate-400 mt-0.5">Últimas matrículas realizadas</p>
+      {/* Main Content Area (Course List Example similar to mock) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left Column (Course List) */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-bold text-white">Cursos Ativos</h3>
+            <button className="text-sm font-medium text-yellow-500 hover:text-yellow-400 flex items-center gap-1">
+              Ver todos
+            </button>
           </div>
-          <a
-            href="/alunos"
-            className="text-sm font-medium transition-colors hover:underline"
-            style={{ color: 'rgb(96, 165, 250)' }}
-          >
-            Ver todas →
-          </a>
+
+          {/* Dummy Course Cards representing the UI from the prompt image */}
+          {[
+            { name: "Design Gráfico Profissional", students: "1.2K", status: "Publicado", color: "from-blue-500 to-cyan-400" },
+            { name: "Formação Full-Stack", students: "850", status: "Rascunho", color: "from-purple-500 to-pink-500" },
+            { name: "Marketing Digital EAD", students: "3.4K", status: "Publicado", color: "from-yellow-400 to-orange-500" }
+          ].map((course, idx) => (
+            <motion.div 
+              key={idx}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 + (idx * 0.1) }}
+              className="glass-card rounded-2xl p-4 flex items-center gap-4 group cursor-pointer"
+            >
+              {/* Course Icon */}
+              <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${course.color} p-[1px] shadow-lg`}>
+                <div className="w-full h-full rounded-xl bg-[#18181b] flex items-center justify-center">
+                  <BookOpen className="w-6 h-6 text-white/80" />
+                </div>
+              </div>
+              
+              {/* Details */}
+              <div className="flex-1">
+                <h4 className="font-bold text-white text-lg group-hover:text-yellow-400 transition-colors">{course.name}</h4>
+                <div className="flex items-center gap-4 text-sm text-slate-400 mt-1">
+                  <span>12 Módulos</span>
+                  <span className="w-1 h-1 rounded-full bg-slate-600" />
+                  <span>{course.students} Alunos</span>
+                </div>
+                
+                {/* Progress Bar visual */}
+                <div className="w-full h-1.5 bg-black/40 rounded-full mt-3 overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-yellow-500 to-amber-500 rounded-full w-[70%]" />
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-col items-end justify-between self-stretch">
+                <div className="flex items-center gap-2">
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                    course.status === 'Publicado' 
+                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                      : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                  }`}>
+                    {course.status}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button className="p-2 text-slate-400 hover:text-white transition-colors">
+                    <Settings className="w-4 h-4" />
+                  </button>
+                  <button className="p-2 text-slate-400 hover:text-white transition-colors">
+                    <MoreHorizontal className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
 
-        {recentEnrollments.length === 0 ? (
-          <div className="text-center py-12">
-            <svg className="w-16 h-16 mx-auto text-slate-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            <p className="text-slate-500">Nenhuma matrícula registrada ainda</p>
-            <p className="text-sm text-slate-600 mt-1">As matrículas aparecerão aqui quando forem criadas</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-700/50">
-                  <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider pb-3 px-2">Aluno</th>
-                  <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider pb-3 px-2">Curso</th>
-                  <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider pb-3 px-2">Status</th>
-                  <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider pb-3 px-2">Data</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-700/30">
-                {recentEnrollments.map((enrollment) => (
-                  <tr key={enrollment.id} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="py-3 px-2">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                          style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)' }}>
-                          {enrollment.user?.name?.charAt(0).toUpperCase() || '?'}
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-white">{enrollment.user?.name}</p>
-                          <p className="text-xs text-slate-500">{enrollment.user?.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3 px-2">
-                      <p className="text-sm text-slate-300">{enrollment.class?.course?.title || '—'}</p>
-                    </td>
-                    <td className="py-3 px-2">
-                      <span
-                        className="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold"
-                        style={{
-                          backgroundColor: statusColors[enrollment.status]?.bg || 'rgba(107,114,128,0.15)',
-                          color: statusColors[enrollment.status]?.text || '#9ca3af',
-                        }}
-                      >
-                        {statusColors[enrollment.status]?.label || enrollment.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-2 text-sm text-slate-400">
-                      {new Date(enrollment.enrolledAt).toLocaleDateString('pt-BR')}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+        {/* Right Column (Floating Widget) */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.6 }}
+          className="relative"
+        >
+          {/* A floating glass card representing the video player from the mockup */}
+          <div className="glass-panel rounded-3xl p-5 sticky top-24 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-yellow-500/20">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <span className="text-[10px] font-bold tracking-widest text-yellow-500 uppercase">AULA ATUAL</span>
+                <h4 className="font-bold text-white leading-tight mt-1">Introdução ao Design Gráfico</h4>
+              </div>
+              <button className="p-1.5 bg-white/5 rounded-lg text-slate-400 hover:text-white">
+                <MoreHorizontal className="w-4 h-4" />
+              </button>
+            </div>
+            
+            {/* Video Placeholder */}
+            <div className="w-full aspect-video rounded-2xl bg-black/60 relative overflow-hidden group cursor-pointer border border-white/5">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
+              
+              {/* Play Button */}
+              <div className="absolute inset-0 flex items-center justify-center z-20">
+                <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center backdrop-blur-md border border-yellow-400/50 group-hover:scale-110 transition-transform shadow-[0_0_20px_rgba(234,179,8,0.4)]">
+                  <PlayCircle className="w-6 h-6 text-yellow-400 ml-1" />
+                </div>
+              </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <a href="/cursos" className="glass rounded-2xl p-6 card-hover group" id="quick-action-courses">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl text-white" style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)' }}>
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
-              </svg>
+              {/* Controls */}
+              <div className="absolute bottom-3 left-3 right-3 z-20 flex items-center gap-3">
+                <div className="h-1 flex-1 bg-white/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-yellow-400 w-1/3 shadow-[0_0_10px_rgba(234,179,8,1)]" />
+                </div>
+                <span className="text-xs font-medium text-white">12:40</span>
+              </div>
             </div>
-            <div>
-              <p className="font-semibold text-white group-hover:text-blue-400 transition-colors">Novo Curso</p>
-              <p className="text-xs text-slate-500">Criar curso e turmas</p>
-            </div>
-          </div>
-        </a>
 
-        <a href="/alunos" className="glass rounded-2xl p-6 card-hover group" id="quick-action-students">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl text-white" style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' }}>
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
-            </div>
-            <div>
-              <p className="font-semibold text-white group-hover:text-blue-400 transition-colors">Novo Aluno</p>
-              <p className="text-xs text-slate-500">Cadastrar aluno</p>
+            <div className="mt-4 flex items-center justify-between text-xs font-medium text-slate-400">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                Status: Online
+              </div>
+              <span>Tipo: Vídeo</span>
             </div>
           </div>
-        </a>
-
-        <a href="/turmas" className="glass rounded-2xl p-6 card-hover group" id="quick-action-classes">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl text-white" style={{ background: 'linear-gradient(135deg, #d946ef, #a21caf)' }}>
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <div>
-              <p className="font-semibold text-white group-hover:text-blue-400 transition-colors">Nova Turma</p>
-              <p className="text-xs text-slate-500">Abrir nova turma</p>
-            </div>
-          </div>
-        </a>
+        </motion.div>
       </div>
     </div>
   );
