@@ -124,7 +124,7 @@ export default function DashboardPage() {
             <motion.div
               key={card.title}
               variants={item}
-              className="glass-card rounded-[2rem] p-6 relative overflow-hidden group"
+              className="glass-card rounded-xl p-6 relative overflow-hidden group border-b-[3px] border-b-yellow-500/50"
             >
               {/* Glow Background Hover Effect */}
               <div className="absolute -top-24 -right-24 w-48 h-48 bg-yellow-500/20 rounded-full blur-[50px] group-hover:bg-yellow-400/30 transition-colors duration-500" />

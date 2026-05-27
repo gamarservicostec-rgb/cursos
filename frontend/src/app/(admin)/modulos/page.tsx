@@ -1,0 +1,1 @@
+export default function Page() { return <div className='glass-card p-8 rounded-xl m-4 border-b-[3px] border-b-yellow-500/50'> <h1 className='text-2xl font-bold text-white'>Em breve</h1><p className='text-slate-400'>A página modulos está em desenvolvimento.</p></div> }
