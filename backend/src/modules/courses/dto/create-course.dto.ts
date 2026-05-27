@@ -33,7 +33,7 @@ export class CreateCourseDto {
 
   @IsOptional()
   @IsNumber()
-  @Min(1, { message: "Duração mínima é 1 hora" })
+  @Min(0, { message: "Duração não pode ser negativa" })
   duration?: number;
 
   @IsOptional()

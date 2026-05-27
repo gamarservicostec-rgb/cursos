@@ -26,7 +26,7 @@ export class UpdateCourseDto {
 
   @IsOptional()
   @IsNumber()
-  @Min(1)
+  @Min(0)
   duration?: number;
 
   @IsOptional()
