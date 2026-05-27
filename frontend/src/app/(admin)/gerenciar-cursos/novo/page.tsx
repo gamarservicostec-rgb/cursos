@@ -142,7 +142,7 @@ export default function NewCoursePage() {
             } else {
               resolve(file);
             }
-          }, 'image/jpeg', 0.85); // Alta qualidade (85%) com excelente compressão
+          }, 'image/jpeg', 0.65); // Compressão agressiva (65%) para Base64 leve e rápido
         };
         img.onerror = () => resolve(file);
       };
@@ -157,8 +157,8 @@ export default function NewCoursePage() {
       setSaving(true); // Mostrar estado de salvamento/carregamento ao comprimir e subir
       
       // Comprimir imagem dependendo do tipo para manter tamanho ideal e leve
-      const maxWidth = type === 'thumbnail' ? 800 : 1600;
-      const maxHeight = type === 'thumbnail' ? 600 : 900;
+      const maxWidth = type === 'thumbnail' ? 600 : 1200;
+      const maxHeight = type === 'thumbnail' ? 450 : 600;
       
       const compressedFile = await compressImage(file, maxWidth, maxHeight);
       console.log(`Image compressed from ${file.size} to ${compressedFile.size} bytes`);
